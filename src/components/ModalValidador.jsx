@@ -33,6 +33,7 @@ export default class ModalValidador extends Component {
     componentWillReceiveProps(next){
         var newShow = next.show;
         var newData = next.data
+
         this.setState({
             show: newShow,
             data: newData
@@ -61,15 +62,16 @@ export default class ModalValidador extends Component {
     handleCallbackService(e) {
 
         this.state.countService = 0
-
+  
+        
         e.map((ee) => {
+
             if (ee.valido != true) {
                 var aux = this.state.countService
                 this.state.countService = aux + 1
             }
 
         })
-
         var auxData = this.state.validacao
         auxData.Servico = this.state.countService
 
@@ -86,7 +88,6 @@ export default class ModalValidador extends Component {
                 var aux = this.state.countArea
                 this.state.countArea = aux + 1
             }
-
         })
 
         var auxData = this.state.validacao

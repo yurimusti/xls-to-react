@@ -11,6 +11,7 @@
     "react-scripts": "2.1.1",
     "react-scroll-horizontal": "^1.6.0",
     "react-style": "^0.5.5",
+    "reqwest": "^2.0.5",
     "xlsx": "^0.14.1"
   },
   "scripts": {
