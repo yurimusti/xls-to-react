@@ -1,46 +1,47 @@
 
 import reqwest from 'reqwest';
+//import { reactLocalStorage } from 'reactjs-localstorage'
 
 
 const ValidaServico = (self, model, pos) => {
 
     const aux = {
-        ClientId:"dab98b50-c009-44e3-bc8c-8f59b44fe54f",
-        ProjectId:"7ad09ab3-8ef2-430a-b793-67d99845caab"
+       // ClientId: reactLocalStorage.get('clientId'),
+       // ProjectId: reactLocalStorage.get('projectId')
     }
 
     Object.assign(model, aux)
 
     reqwest({
-        url: 'http://localhost:3111/api/en/' + "VerificacoesComponent/Servico",
+        url:  "VerificacoesComponent/Servico",
         type: 'json',
         method: 'POST',
         contentType: 'application/json',
-        crossOrigin: false,
-        withCredentials: false,      
+        crossOrigin: true,
+        withCredentials: true,
         data: JSON.stringify(model)
         ,
         error: function (err) {
             var error = JSON.stringify(err.responseText)
-        
+
         },
         success: function (resp) {
 
             var r = self.state.data
             r[pos] = resp
             r[pos].loading = false
-            if(resp.message == 'not found'){
+            if (resp.message == 'not found') {
                 r[pos].message = 'Serviço não encontrado.'
             }
-            if(resp.message == 'not assign'){
+            if (resp.message == 'not assign') {
                 r[pos].message = ' Serviço não vinculado a projeto.'
             }
-            
+
             delete resp.ClientId
             delete resp.ProjectId
             self.setState({
-                data:r,
-                
+                data: r,
+
             })
             self.props.callback(self.state.data)
         }
@@ -59,39 +60,38 @@ const ValidaServico = (self, model, pos) => {
 const ValidaArea = (self, model, pos) => {
 
     const aux = {
-        ClientId:"dab98b50-c009-44e3-bc8c-8f59b44fe54f",
-        ProjectId:"7ad09ab3-8ef2-430a-b793-67d99845caab"
+        //ClientId: reactLocalStorage.get('clientId'),
+       // ProjectId: reactLocalStorage.get('projectId')
     }
 
     Object.assign(model, aux)
 
     reqwest({
-        url: 'http://localhost:3111/api/en/' + "VerificacoesComponent/Area",
+        url:  "VerificacoesComponent/Area",
         type: 'json',
         method: 'POST',
         contentType: 'application/json',
-        crossOrigin: false,
-        withCredentials: false,      
+        crossOrigin: true,
+        withCredentials: true,
         data: JSON.stringify(model)
         ,
         error: function (err) {
             var error = JSON.stringify(err.responseText)
-        
+
         },
         success: function (resp) {
-            console.log(resp)
 
             var r = self.state.data
             r[pos] = resp
             r[pos].loading = false
-            if(resp.message == 'not found'){
+            if (resp.message == 'not found') {
                 r[pos].message = 'Área não encontrada.'
             }
             delete resp.ClientId
             delete resp.ProjectId
             self.setState({
-                data:r,
-                
+                data: r,
+
             })
             self.props.callback(self.state.data)
         }
@@ -110,39 +110,38 @@ const ValidaArea = (self, model, pos) => {
 const ValidaEquipe = (self, model, pos) => {
 
     const aux = {
-        ClientId:"dab98b50-c009-44e3-bc8c-8f59b44fe54f",
-        ProjectId:"7ad09ab3-8ef2-430a-b793-67d99845caab"
+        //ClientId: reactLocalStorage.get('clientId'),
+        //ProjectId: reactLocalStorage.get('projectId')
     }
 
     Object.assign(model, aux)
 
     reqwest({
-        url: 'http://localhost:3111/api/en/' + "VerificacoesComponent/Equipe",
+        url:  "VerificacoesComponent/Equipe",
         type: 'json',
         method: 'POST',
         contentType: 'application/json',
-        crossOrigin: false,
-        withCredentials: false,      
+        crossOrigin: true,
+        withCredentials: true,
         data: JSON.stringify(model)
         ,
         error: function (err) {
             var error = JSON.stringify(err.responseText)
-        
+
         },
         success: function (resp) {
-            console.log(resp)
 
             var r = self.state.data
             r[pos] = resp
             r[pos].loading = false
-            if(resp.message == 'not found'){
+            if (resp.message == 'not found') {
                 r[pos].message = 'Equipe não encontrada.'
             }
             delete resp.ClientId
             delete resp.ProjectId
             self.setState({
-                data:r,
-                
+                data: r,
+
             })
             self.props.callback(self.state.data)
         }
@@ -152,4 +151,54 @@ const ValidaEquipe = (self, model, pos) => {
 
 }
 
-export {ValidaServico, ValidaArea, ValidaEquipe}
+const ValidaUnidade = (self, model, pos) => {
+    const aux = {
+        //ClientId: reactLocalStorage.get('clientId'),
+    }
+
+
+    Object.assign(model, aux)
+
+    reqwest({
+        url: "VerificacoesComponent/Unidade",
+        type: 'json',
+        method: 'POST',
+        contentType: 'application/json',
+        crossOrigin: true,
+        withCredentials: true,
+        data: JSON.stringify(model)
+        ,
+        error: function (err) {
+            var error = JSON.stringify(err.responseText)
+
+        },
+        success: function (resp) {
+
+            
+            var r = self.state.data
+            r[pos] = resp
+            r[pos].loading = false
+            r[pos].disable = false
+            r[pos].type = 'number'
+            r[pos].validoUnidade = resp.validoUnidade
+            if (resp.message == 'not found') {
+                r[pos].message = 'Unidade não encontrada.'
+            }
+            delete resp.ClientId
+            
+            self.setState({
+                data: r,
+
+            })
+            self.validarQuantidade(model.numero, pos)
+            self.props.callback(self.state.data)
+        }
+    }).then((dat) => {
+    });
+
+
+}
+
+export { ValidaServico, ValidaArea, ValidaEquipe, ValidaUnidade }
+
+

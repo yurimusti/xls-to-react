@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Modal, Icon } from 'antd'
+import { Modal, Icon, notification } from 'antd'
 import {style} from '../style/ModalValidadorStyle'
 import Date from '../validacoes/Date'
 import Service from '../validacoes/Service'
@@ -102,7 +102,13 @@ export default class ModalValidador extends Component {
         this.state.countNumero = 0
 
         e.map((ee) => {
-            if (ee.valido != true) {
+            
+            if (ee.validoUnidade != true ) {
+                var aux = this.state.countNumero
+                this.state.countNumero = aux + 1
+            }
+
+            if( ee.validoQuantidade != true){
                 var aux = this.state.countNumero
                 this.state.countNumero = aux + 1
             }
@@ -160,6 +166,39 @@ export default class ModalValidador extends Component {
         }
     }
 
+    handleOk(){
+
+        var {t} = this.props
+
+        if(this.state.validacao.Data == 0 &&
+            this.state.validacao.Servico == 0 &&
+            this.state.validacao.Area == 0 &&
+            this.state.validacao.Quantidade == 0 &&
+            this.state.validacao.Equipe == 0 ){
+
+                var data = this.state.data
+                this.setState({
+                    show: false,
+                    data:[]
+                })
+                this.props.callbackValidador(data, true)
+                
+            }else{
+                notification['warning']({
+                    message: "t('util.notificacao.atencao')",
+                    description: "t('util.common.Validacao.valid')",//TODO
+                });
+            }
+    }
+
+    handleCancel(){
+        this.setState({
+            show: false,
+            data:[]
+        })
+        this.props.callbackValidador(null, false)
+    }
+
     render() {
 
         const keys = Object.keys(this.props.data)
@@ -174,7 +213,7 @@ export default class ModalValidador extends Component {
 
                     {this.state.validacao[e] == 0 ? (
                         <div style={{ display: 'flex', flex: 1, flexDirection: 'row-reverse', position: 'relative', right: 0 }}>
-                            <div style={{ padding: 5, borderRadius: 200, background: '#30C6BE', width: 40, height: 40, display: 'flex', margin: -5, justifyContent: 'center', alignItems: 'center' }}><Icon type="check" style={{ fontSize: 20, color: 'white' }} /></div>
+                            <div style={{ padding: 5, borderRadius: 200, background: '#30c6be', width: 40, height: 40, display: 'flex', margin: -5, justifyContent: 'center', alignItems: 'center' }}><Icon type="check" style={{ fontSize: 20, color: 'white' }} /></div>
                         </div>
                     ) : (
                             <div style={{ display: 'flex', flex: 1, flexDirection: 'row-reverse', position: 'relative', right: 0 }}>
@@ -189,11 +228,19 @@ export default class ModalValidador extends Component {
                     </div>
 
                     <div style={{ height: '5vh', width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', display: 'flex', alignItems: 'flex-end' }}>
-                        <div style={i == 1 ? { width: '100%', display: 'flex', marginLeft: 10 } : { display: 'none' }}>
-                            <span style={{ flex: 2, fontSize: '12px', fontWeight: 'bold' }}>Código</span>
+                        <div style={i == 1? { width: '100%', display: 'flex', marginLeft: 10 } : { display: 'none' }}>
+                            <span style={{ flex: 2, fontSize: '12px', fontWeight: 'bold' }}>Codigo</span>
                             <span style={{ flex: 6.5, fontSize: '12px', fontWeight: 'bold' }}>Descrição</span>
                         </div>
+
+                        <div style={i == 3? { width: '100%', display: 'flex', marginLeft: 10 } : { display: 'none' }}>
+                            <span style={{ flex: 2, fontSize: '12px', fontWeight: 'bold' }}>Quantidade</span>
+                            <div style={{marginLeft:15}}></div>
+                            <span style={{ flex: 6.5, fontSize: '12px', fontWeight: 'bold' }}>Unidade</span>
+                        </div>
                     </div>
+
+
 
                     <div style={style.body.content}>
                         {this.validate(values[e][0].type, values[e])}
@@ -210,11 +257,10 @@ export default class ModalValidador extends Component {
                     style={style.modal}
                     centered={true}
                     width="95%"
-                    onOk={()=>alert('teste')}
-                    onCancel={()=> this.setState({
-                        show:false,
-                        data: []
-                    })}
+                    onOk={()=> this.handleOk()}
+                    onCancel={()=> this.handleCancel()}
+                    okText="Ok"
+                    cancelText="Cancel"
                 >
                     <div style={style.container}>
                         {list}
@@ -226,3 +272,5 @@ export default class ModalValidador extends Component {
         )
     }
 }
+
+export {ModalValidador}

@@ -1,6 +1,9 @@
 const style = {
     modal: {
-        height: '100vh'
+        height: '95vh',
+        display:'flex',
+        justifyContent:'center',
+        alignItems:'center',
     },
     container: { display: 'flex', flexDirection: 'row', flex: 1, width: '100%' },
     body: {
@@ -30,7 +33,6 @@ const style = {
         marginRight: 10,
         borderRadius: 10,
     }
-
 }
 
 export {style}

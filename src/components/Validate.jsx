@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
 import Dropzone from 'react-dropzone'
-import { Icon, Modal } from 'antd'
+import { Icon } from 'antd'
 import ModalValidador from './ModalValidador'
 import XLSX from 'xlsx'
+import { number } from 'prop-types';
 
 export default class ImportacaoGeral extends Component {
-
-
 
     constructor(props) {
         super(props)
 
         this.state = {
             show: false,
-            importe: {}
+            importe: {},
+            valid: false,
+            dataValidada: []
         }
 
         this.onDrop = this.onDrop.bind(this)
@@ -36,7 +37,6 @@ export default class ImportacaoGeral extends Component {
             }
             // call 'xlsx' to read the file
             var oFile = XLSX.read(binary, { type: 'binary', cellDates: true, cellStyles: true, cellFormula: true });
-
             if (oFile.Strings == undefined || oFile.Strings.length == 0) {
                 return
             } else {
@@ -77,12 +77,27 @@ export default class ImportacaoGeral extends Component {
                     //Data
                     for (var i = 3; i <= size; i++) {
                         let value = (data["A" + i]) == null ? "" : data["A" + i].v
-                        var aux = {
-                            value:value,
-                            type: 'date'
+
+                        if (typeof (value) == 'string') {
+                            var aux = {
+                                value: value,
+                                type: 'date'
+                            }
+                            Data.push(aux)
                         }
-                        
-                        Data.push(aux)
+
+                        if (typeof (value) == 'object') {
+                            var r = new Date(value)
+                            var mes = r.getMonth() + 1
+                            if (mes < 9) {
+                                mes = "0" + mes
+                            }
+                            var aux = {
+                                value: r.getDate() + "/" + mes + "/" + r.getFullYear(),
+                                type: 'date'
+                            }
+                            Data.push(aux)
+                        }
                     }
 
                     //Servico
@@ -97,39 +112,54 @@ export default class ImportacaoGeral extends Component {
                         Servico.push(aux)
                     }
 
+                    
+
                     //Area
                     for (var i = 3; i <= size; i++) {
                         let area = (data["D" + i]) == null ? "" : data["D" + i].v
-                       var aux = {
+                        var aux = {
                             value: area,
                             type: 'area'
                         }
-                        
+
                         Area.push(aux)
                     }
 
                     //Quantidade
                     for (var i = 3; i <= size; i++) {
                         let qt = (data["E" + i]) == null ? "" : data["E" + i].v
-                        var aux = {
-                            value: qt,
-                            type: 'number'
+                        let un = (data["F" + i]) == null ? "" : data["F" + i].v
+
+                        if(typeof(qt) == 'number'){
+                            qt = qt.toFixed(2).toString().replace('.', ',');
+                            var aux = {
+                                numero: qt,
+                                unidade: un,
+                                type: 'number'
+                            }
+
+                        }else{
+                            var aux = {
+                                numero: qt,
+                                unidade: un,
+                                type: 'number'
+                            }
                         }
-                        
+
                         Quantidade.push(aux)
                     }
 
                     //Equipe
                     for (var i = 3; i <= size; i++) {
-                        let equipe = (data["F" + i]) == null ? "" : data["F" + i].v
+                        let equipe = (data["G" + i]) == null ? "" : data["G" + i].v
                         var aux = {
                             value: equipe,
                             type: 'team'
                         }
-                        
+
                         Equipe.push(aux)
                     }
-                    
+
                     var aux2 = {}
                     aux2.Data = Data
                     aux2.Servico = Servico
@@ -138,8 +168,8 @@ export default class ImportacaoGeral extends Component {
                     aux2.Equipe = Equipe
 
                     that.setState({
-                        importe:aux2,
-                        show:true
+                        importe: aux2,
+                        show: true
                     })
 
                 }
@@ -149,31 +179,63 @@ export default class ImportacaoGeral extends Component {
         reader.readAsArrayBuffer(e.target.files[0])
     }
 
+    handleCallBackValidador(data, valid) {
+
+        this.setState({
+            importe: {},
+            valid: valid,
+            show: false,
+            dataProgramacao: data
+        })
+
+        this.props.callback(data)
+    }
+
     render() {
         return (
             <div>
                 <Dropzone onDrop={(a, b, c) => this.onDrop(c)}>
                     {({ getRootProps, getInputProps, isDragActive }) => {
                         return (
-                            <div
-                                {...getRootProps()}
+                            <div>
+                                {!this.state.valid ?
 
-                                style={{ border: '1px dashed #ccc ', borderRadius: 10, padding: '30px 30px' }}
-                            >
-                                <input {...getInputProps()} />
-                                <div style={{ display: 'flex', flex: 1, height: '10vh', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                                    <div
+                                        {...getRootProps()}
 
-                                    <Icon type="cloud-upload" style={{ fontSize: '32px', color: '#0092cc' }} />
-                                    <span style={{ fontSize: '12px', color: '#0092cc', fontWeight: '500' }}>
-                                        Importar arquivo .xls
+                                        style={{ border: '1px dashed #ccc ', borderRadius: 10, padding: '30px 30px' }}
+                                    >
+                                        <input {...getInputProps()} />
+                                        <div style={{ display: 'flex', flex: 1, height: '10vh', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+
+                                            <Icon type="cloud-upload" style={{ fontSize: '32px', color: '#0092cc' }} />
+                                            <span style={{ fontSize: '12px', color: '#0092cc', fontWeight: '500' }}>
+                                                Importar arquivo .xlsx
                                     </span>
 
-                                </div>
+                                        </div>
+                                    </div>
+                                    :
+                                    <div
+                                        {...getRootProps()}
+
+                                        style={{ border: '1px dashed #30c6be ', borderRadius: 10, padding: '30px 30px' }}
+                                    >
+                                        <input {...getInputProps()} />
+                                        <div style={{ display: 'flex', flex: 1, height: '10vh', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                                            <Icon type="check" style={{ fontSize: '32px', color: '#30c6be' }} />
+                                            <span style={{ fontSize: '12px', color: '#30c6be', fontWeight: '500' }}>
+                                                Arquivo validado com sucesso.
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                }
                             </div>
                         )
                     }}
                 </Dropzone>
-                <ModalValidador show={this.state.show} data={this.state.importe} />
+                <ModalValidador show={this.state.show} data={this.state.importe} callbackValidador={(data, valid) => this.handleCallBackValidador(data, valid)} />
 
             </div>
         )
